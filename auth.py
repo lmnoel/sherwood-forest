@@ -49,6 +49,8 @@ def security_data(ticker):
     return r.json()['results'][0]
 
 def place_order(token, ticker, side, quantity, price=None):
+    formatted_token = 'Token ' + token
+    email_address = input('Email address: ')
     SAFETY_MARGIN = 1.02
     sufficient_funds = False
     security_data = security_data(ticker)
@@ -62,6 +64,20 @@ def place_order(token, ticker, side, quantity, price=None):
         if float(account_data['buying_power']) > est_cost:
             sufficient_funds = True
     if tradeable and sufficient_funds:
+        pass
+        params = {'account': ,
+                  'instrument': ,
+                  'symbol': ,
+                  'type': ,
+                  'time_in_force': ,
+                  'trigger': ,
+                  'quantity': ,
+                  'side': }
+        r = response.post('https://api.robinhood.com/orders',
+                          headers={'Authorization':formatted_token},
+                          data=params, verify=True, timeout=5)
 
+        subject = 'succesful {} trade on robinhood'.format(side)
+        send_mail(email_address, subject, details)
 
-    return
+    return r.json()
