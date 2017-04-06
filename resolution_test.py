@@ -33,7 +33,7 @@ def execute():
         bid_price = data['bid_price']
         last_trade_price = data['last_trade_price']
         updated_time = data['updated_at']
-        print('Bid: {} ask: {} updated: {}'.format(bid_price,ask_price,updated_time))
+        print('Bid: {} ask: {} last_trade: {} updated: {}'.format(bid_price,ask_price,last_trade_price,updated_time))
         val = ((current_hr,current_min, current_sec),ask_price, bid_price,last_trade_price,updated_time)
         history.append(val)
         current_hr, current_min, current_sec = get_time()
