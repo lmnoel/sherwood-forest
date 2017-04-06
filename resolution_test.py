@@ -8,6 +8,12 @@ def get_quote(ticker):
 
     return r.json()
 
+def netfonds_quote(ticker):
+    time_str = time.strftime("%y%m%d")
+    r = requests.get('')
+
+
+
 def get_time():
 
     current_hr = time.gmtime().tm_hour - 4
@@ -20,7 +26,7 @@ def execute():
     history = []
     current_hr, current_min, current_sec = get_time()
     count = 0
-    while count < 1000:
+    while count < 100000000000000:
         count += 1
         data = get_quote('SPY')
         ask_price = data['ask_price']
