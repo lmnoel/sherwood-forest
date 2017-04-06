@@ -26,13 +26,14 @@ def execute():
     history = []
     current_hr, current_min, current_sec = get_time()
     count = 0
-    while count < 100000000000000:
+    while count < 1000000:
         count += 1
         data = get_quote('SPY')
         ask_price = data['ask_price']
         bid_price = data['bid_price']
         last_trade_price = data['last_trade_price']
         updated_time = data['updated_at']
+        print('Bid: {} ask: {} updated: {}'.format(bid_price,ask_price,updated_time))
         val = ((current_hr,current_min, current_sec),ask_price, bid_price,last_trade_price,updated_time)
         history.append(val)
         current_hr, current_min, current_sec = get_time()
