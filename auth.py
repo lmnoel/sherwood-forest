@@ -1,7 +1,7 @@
 import requests
 from requests.auth import HTTPBasicAuth
 import getpass
-import email_alerts
+from email_alerts import send_mail
 
 def get_token():
     user_name = input("Username: ")
@@ -34,7 +34,10 @@ def accounts(token):
     token = 'Token ' + token
     r = requests.get('https://api.robinhood.com/accounts/',
         headers={'Authorization':token},verify=True, timeout=5)
-    return r.json()['results'][0]
+    if 'results' in r.json().keys():
+        return r.json()['results'][0]
+    else:
+        return {}
 
 def recent_orders(token):
     token = 'Token ' + token
@@ -48,36 +51,38 @@ def security_data(ticker):
 
     return r.json()['results'][0]
 
+def get_quote(ticker):
+
+    r = requests.get('https://api.robinhood.com/quotes/{}/'.format(ticker))
+
+    return r.json()
+
 def place_order(token, ticker, side, quantity, price=None):
+    est_cost = None
+    est_proceeds = None
     formatted_token = 'Token ' + token
     email_address = input('Email address: ')
     SAFETY_MARGIN = 1.02
     sufficient_funds = False
-    security_data = security_data(ticker)
-    url = security_data['url']
-    tradeable = security_data['tradeable']
-    if side == 'buy':
-        est_cost = quantity * (price * SAFETY_MARGIN)
+    sec_data = security_data(ticker)
+    quote = get_quote(ticker)
+    sec_url = sec_data['url']
+    tradeable = sec_data['tradeable']
     account_data = accounts(token)
     if side == 'buy':
+        last_trade = float(quote['last_trade_price'])
+        est_cost = quantity * (last_trade * SAFETY_MARGIN)
         #is buying power the correct number here?
         if float(account_data['buying_power']) > est_cost:
             sufficient_funds = True
     if tradeable and sufficient_funds:
-        pass
-        params = {'account': ,
-                  'instrument': ,
-                  'symbol': ,
-                  'type': ,
-                  'time_in_force': ,
-                  'trigger': ,
-                  'quantity': ,
-                  'side': }
-        r = response.post('https://api.robinhood.com/orders',
-                          headers={'Authorization':formatted_token},
-                          data=params, verify=True, timeout=5)
-
+        print('Estimated cost/proceeds from this transaction: {}'.format(est_cost))
+        account = 'https://api.robinhood.com/accounts/{}/'.format(input('Account number: '))
+        pattern_url = 'https://api.robinhood.com/orders/post?account={}&instrument={}&symbol={}&type={}&time_in_force={}&trigger={}&quantity={}&side={}'
+        r = requests.post(pattern_url.format(account, sec_url,ticker,'market','fok','immediate',str(quantity),side),
+                          headers={'Authorization':formatted_token},verify=True, timeout=5)
+        print('done')
         subject = 'succesful {} trade on robinhood'.format(side)
-        send_mail(email_address, subject, details)
+        send_mail(email_address, subject, r.json())
 
     return r.json()
