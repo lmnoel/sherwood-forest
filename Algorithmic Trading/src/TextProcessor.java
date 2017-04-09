@@ -5,6 +5,8 @@ import java.util.Map.Entry;
 public class TextProcessor {
 
 	TextProcessor() {}
+	
+	private static ArrayList<String> chosenWords = new ArrayList<String>();
 
 	private static int counter = 0;
 
@@ -30,6 +32,11 @@ public class TextProcessor {
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 		System.out.println("Runtime: " + totalTime + "ms");
+		
+		//print out words picked toward rating
+		for (String word : chosenWords) {
+			System.out.println(word);
+		}
 	}
 
 	static void read(String input) {
@@ -127,6 +134,8 @@ public class TextProcessor {
 			if (word.equals(entry.getKey())) {
 				counter++;
 				float value = entry.getValue();
+				
+				chosenWords.add(word);
 				
 				//update score accounting for negation
 				if (!negate) rating += value;
