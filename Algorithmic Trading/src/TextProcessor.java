@@ -19,11 +19,17 @@ public class TextProcessor {
 	private static String inputFile = "input.txt";
 
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();//temp
 		FileParser.readClassifiers(classifiersFile);
 		FileParser.readInput(inputFile);
 		
 		
 		read(Constants.input);
+		
+		//temp
+		long endTime   = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		System.out.println(totalTime);
 	}
 
 	static void read(String input) {
