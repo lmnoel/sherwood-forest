@@ -29,7 +29,7 @@ public class TextProcessor {
 		//temp
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
-		System.out.println(totalTime);
+		System.out.println("Runtime: " + totalTime + "ms");
 	}
 
 	static void read(String input) {
