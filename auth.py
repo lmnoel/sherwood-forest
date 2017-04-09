@@ -57,7 +57,12 @@ def get_quote(ticker):
 
     return r.json()
 
-def place_order(token, ticker, side, quantity, price=None):
+def notify(order_dat):
+    return
+
+
+def place_order(token, ticker=None, side=None, quantity=None, price=None):
+
     est_cost = None
     est_proceeds = None
     formatted_token = 'Token ' + token
@@ -78,11 +83,25 @@ def place_order(token, ticker, side, quantity, price=None):
     if tradeable and sufficient_funds:
         print('Estimated cost/proceeds from this transaction: {}'.format(est_cost))
         account = 'https://api.robinhood.com/accounts/{}/'.format(input('Account number: '))
-        pattern_url = 'https://api.robinhood.com/orders/post?account={}&instrument={}&symbol={}&type={}&time_in_force={}&trigger={}&quantity={}&side={}'
-        r = requests.post(pattern_url.format(account, sec_url,ticker,'market','fok','immediate',str(quantity),side),
-                          headers={'Authorization':formatted_token},verify=True, timeout=5)
-        print('done')
-        subject = 'succesful {} trade on robinhood'.format(side)
-        send_mail(email_address, subject, r.json())
+        pattern_url = 'https://api.robinhood.com/orders/'
+        #had to specify price
+        data = {
+        'account' : account,
+        'instrument' : sec_url,
+        'quantity' : str(quantity),
+        'side' : side,
+        'symbol' : ticker,
+        'time_in_force' : 'gfd',
+        'trigger': 'immediate',
+        'type' : 'market',
+        'price' : last_trade + 0.05
+        }
+        r = requests.post(pattern_url,data=data,headers={'Authorization':formatted_token},verify=True, timeout=5)
+        
+        order_dat = r.json()
 
-    return r.json()
+        subject = 'succesful {} trade on robinhood'.format(side)
+
+        notify(order_dat)
+
+    return order_dat
