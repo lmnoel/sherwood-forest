@@ -59,7 +59,7 @@ def from_url_get_text(url_string):
         text += tag.text
 
     text = re.sub('[\xa0]','',text)
-    return text, title
+    return text, title[:-26]
 
 
 def write_textfile(text, name):
