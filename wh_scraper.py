@@ -60,11 +60,15 @@ def from_url_get_text(url_string):
         text += tag.text
 
     text = re.sub('[\xa0]','',text)
-    return text, title[0:-26]
+    return text, title[:-26]
 
 
-def write_textfile(text, name):
-    file = open(name + '.txt','w') 
+def write_textfile(text, file_name):
+    file_path = 'eo_textfiles'
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+    complete_filename = file_path + '/' + file_name + '.txt'
+    file = open(complete_filename,'w') 
     file.write(text) 
     file.close() 
 
