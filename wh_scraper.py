@@ -13,7 +13,7 @@ import os.path
 import time
 
 
-def get_urls():
+def get_urls(verbose=False):
     valid = True
     page = -1
     url_list = []
@@ -39,7 +39,7 @@ def get_urls():
           url_list.append(full_url)
           # get just the title
           titleOnly = eoLinks[link].getText()
-    print("{} EO(s) on whitehouse.gov".format(len(url_list)))
+    if verbose: print("{} EO(s) on whitehouse.gov".format(len(url_list)))
     return url_list
 
 
@@ -76,33 +76,39 @@ def write_datafile(urls):
 
     outputFile.close()
 
-def read_datafile():
+def read_datafile(verbose=False):
     file = open('eo_data.csv')
     reader = csv.reader(file)
     data = list(reader)
-    print("{} EO(s) currently on file".format(len(data[0])))
+    if verbose: print("{} EO(s) currently on file".format(len(data[0])))
     return data[0]
 
-def main():
-    urls = get_urls()
+def main(verbose=False):
+    if verbose: urls = get_urls(verbose=True)
+    if not verbose: urls = get_urls()
     if os.path.isfile('eo_data.csv'):
-        existing_urls = read_datafile()
+        if verbose:
+            existing_urls = read_datafile(verbose=True)
+        else:
+            existing_urls = read_datafile()
         to_download = list(set(urls) - set(existing_urls))
         if len(to_download) == 0:
-            print('Already up-to-date')
+            if verbose: print('Already up-to-date')
             return
     else:
         to_download = urls
+    titles = []
     for url in to_download:
         text, title = from_url_get_text(url)
+        titles.append(title)
         write_textfile(text,title)
-    print("Downloaded {} EO(s)".format(len(to_download)))
+    if verbose: print("Downloaded {} EO(s)".format(len(to_download)))
     write_datafile(urls)
-    return
+    return titles
 
 if __name__ == '__main__':
     start = time.time()
-    main()
+    titles = main(verbose=False)
     end = time.time()
     print('Took {} seconds'.format(end - start))
 
