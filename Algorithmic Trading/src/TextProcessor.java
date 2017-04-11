@@ -33,13 +33,15 @@ public class TextProcessor {
 		long totalTime = endTime - startTime;
 		System.out.println("Runtime: " + totalTime + "ms");
 		
-		//print out words picked toward rating
+		/*//print out words picked toward rating
 		for (String word : chosenWords) {
 			System.out.println(word);
-		}
+		}*/
 	}
 
-	static void read(String input) {
+	static Output read(String input) {
+		int chinaMentions = 0;
+		int mexicoMentions = 0;
 		
 		if (capitalTitle(input)) {
 			capitalTitle = true;
@@ -61,6 +63,15 @@ public class TextProcessor {
 		// remove punctuation
 		for (int i = 0; i < words.length; i++) {
 			words[i] = words[i].toLowerCase();
+			
+			if (words[i].equals("china") || words[i].equals("chinese") 
+					|| words[i].equals("yuan") || words[i].equals("renminbi")) {
+				chinaMentions++;
+			}
+			if (words[i].equals("mexico") || words[i].equals("mexican")
+					|| words[i].equals("peso")) {
+				mexicoMentions++;
+			}
 
 			for (String punctuation : Constants.punctuationMarks) {
 				if (words[i].contains(punctuation)) {
@@ -102,7 +113,7 @@ public class TextProcessor {
 
 		if (maxCategory == null) {
 			System.out.println("Unable to detect category");
-			return;
+			return null;
 		}
 		
 		
@@ -123,9 +134,18 @@ public class TextProcessor {
 		}
 		rating /= counter;
 		
+		if (capitalTitle) {
+			float alteration = (1-(Math.abs(rating)))/4;
+			if (rating >0) {
+				rating += alteration;
+			}
+			else rating -= alteration;
+
+		}
 		
 		System.out.println("Rating: " + rating);
-
+		
+		return new Output(rating, maxCategory.name, mexicoMentions,chinaMentions);
 	}
 
 	private static float rate(String word, float rating, int index, Map<String, Float> map) {
@@ -136,6 +156,7 @@ public class TextProcessor {
 				float value = entry.getValue();
 				
 				chosenWords.add(word);
+				System.out.println(word);
 				
 				//update score accounting for negation
 				if (!negate) rating += value;
