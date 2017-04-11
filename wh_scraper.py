@@ -39,6 +39,7 @@ def get_urls():
           url_list.append(full_url)
           # get just the title
           titleOnly = eoLinks[link].getText()
+    print("{} EO(s) on whitehouse.gov".format(len(url_list)))
     return url_list
 
 
@@ -59,7 +60,7 @@ def from_url_get_text(url_string):
         text += tag.text
 
     text = re.sub('[\xa0]','',text)
-    return text, title[:-26]
+    return text, title[0:-26]
 
 
 def write_textfile(text, name):
@@ -69,7 +70,7 @@ def write_textfile(text, name):
 
 def write_datafile(urls):
  
-    outputFile = open('eo_data.csv', 'w', newline='')
+    outputFile = open('eo_data.csv', 'w', newline='\n')
     outputWriter = csv.writer(outputFile)
     outputWriter.writerow(urls)
 
@@ -79,6 +80,7 @@ def read_datafile():
     file = open('eo_data.csv')
     reader = csv.reader(file)
     data = list(reader)
+    print("{} EO(s) currently on file".format(len(data[0])))
     return data[0]
 
 def main():
@@ -86,7 +88,7 @@ def main():
     if os.path.isfile('eo_data.csv'):
         existing_urls = read_datafile()
         to_download = list(set(urls) - set(existing_urls))
-        if len(urls) == len(existing_urls):
+        if len(to_download) == 0:
             print('Already up-to-date')
             return
     else:
@@ -94,7 +96,7 @@ def main():
     for url in to_download:
         text, title = from_url_get_text(url)
         write_textfile(text,title)
-    print("Downloaded {} EOs".format(len(to_download)))
+    print("Downloaded {} EO(s)".format(len(to_download)))
     write_datafile(urls)
     return
 
