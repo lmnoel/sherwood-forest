@@ -11,7 +11,7 @@ def go():
         titles = main()
         if titles:
             #javacode
-            #call papertrading
+            #trade(args_from_NLP)
             pass
     return
 
