@@ -3,6 +3,11 @@
 import time
 from auth import *
 from wh_scraper import *
+<<<<<<< HEAD
+import subprocess
+=======
+from paper_trading import *
+>>>>>>> origin/master
 
 def go():
     #run during a reasonable trading window
@@ -10,8 +15,17 @@ def go():
         titles = []
         titles = main()
         if titles:
+
+            process = subprocess.Popen(['java', '-jar', 'java/textProcessor.jar'],
+                stdout=subprocess.PIPE)
+            args = process.stdout.read().decode('utf-8').split()
+            #args[0] = category
+            #args[1] = rating
+            #args[2] = mexicoMentions
+            #args[3] = chinaMentions
+
             #javacode
-            #call papertrading
+            #trade(args_from_NLP)
             pass
     return
 
