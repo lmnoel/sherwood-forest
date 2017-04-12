@@ -4,7 +4,11 @@ import time
 from auth import *
 from wh_scraper import *
 <<<<<<< HEAD
+<<<<<<< HEAD
 import subprocess
+=======
+from paper_trading import *
+>>>>>>> origin/master
 =======
 from paper_trading import *
 >>>>>>> origin/master
