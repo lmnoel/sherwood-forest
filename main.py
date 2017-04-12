@@ -3,6 +3,7 @@
 import time
 from auth import *
 from wh_scraper import *
+from paper_trading import *
 
 def go():
     #run during a reasonable trading window
