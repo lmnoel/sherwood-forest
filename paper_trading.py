@@ -3,6 +3,20 @@ import requests
 import csv
 from auth import *
 
+
+IND_FUND_MAP = {
+    'energy' : 'IYE',
+    'infrastructure' : 'PAVE',
+    'finance' : 'IYF'
+}
+
+COUNT_FUND_MAP = {
+    'china' : 'CYB',
+    'mexico' : 'FXM',
+    'general' : 'FXM',
+    'dollar' : 'USDU'
+}
+
 class Portfolio(object):
     '''
     '''
@@ -94,7 +108,7 @@ def get_time():
 
     return current_hr, current_min, current_sec
 
-def execute():
+def test_execute():
     history = []
     current_hr, current_min, current_sec = get_time()
     while current_hr <= 16 and current_min <= 30:
@@ -114,13 +128,20 @@ def report(history):
         for row in history:
             writer.writerow(row)
 
+def trade(args_from_NLP):
+    #if market is open:
 
-if __name__ == '__main__':
-    aapl = Stock('AAPL',120,10)
-    msft = Stock('MSFT',70,15)
-    p = Portfolio()
-    p.add_stock(aapl)
-    p.add_stock(msft)
-    p.add_cash(40)
-
-    #execute()
+    #if keyword in IND_FUND_MAP.keys():
+        #ticker = IND_FUND_MAP[keyword]
+        #if safe_to_trade(ticker):
+            #if up:
+                #long(ticker)
+            #elif down:
+                #short(ticker)
+    #elif keyword in COUNT_FUND_MAP.keys():
+        #ticker = COUNT_FUND_MAP[keyword]
+        #if safe_to_trade:
+            #if up:
+                #long(ticker)
+            #elif down:
+                #short(ticker)
