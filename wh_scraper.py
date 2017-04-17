@@ -63,12 +63,9 @@ def from_url_get_text(url_string):
     return text, title[:-26]
 
 
-def write_textfile(text, file_name):
-    file_path = 'eo_textfiles'
-    if not os.path.exists(file_path):
-        os.makedirs(file_path)
-    complete_filename = file_path + '/' + file_name + '.txt'
-    file = open(complete_filename,'w') 
+def write_textfile(text):    
+    file_name = 'resources/input.txt'
+    file = open(file_name,'w') 
     file.write(text) 
     file.close() 
 
@@ -105,14 +102,14 @@ def main(verbose=False):
     for url in to_download:
         text, title = from_url_get_text(url)
         titles.append(title)
-        write_textfile(text,title)
+        write_textfile(text)
     if verbose: print("Downloaded {} EO(s)".format(len(to_download)))
     write_datafile(urls)
     return titles
 
 if __name__ == '__main__':
     start = time.time()
-    titles = main(verbose=False)
+    titles = main(verbose=True)
     end = time.time()
     print('Took {} seconds'.format(end - start))
 

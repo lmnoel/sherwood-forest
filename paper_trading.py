@@ -108,19 +108,17 @@ def get_time():
 
     return current_hr, current_min, current_sec
 
-def test_execute():
-    history = []
-    current_hr, current_min, current_sec = get_time()
-    while current_hr <= 16 and current_min <= 30:
-        data = get_quote('SPY')
-        price = data['ask_price']
-        trade_time = data['updated_at']
-        val = ((current_hr,current_min, current_sec),price, trade_time)
-        history.append(val)
-        if current_min == 30:
-            report(history)
-        time.sleep(60)
-        current_hr, current_min, current_sec = get_time()
+
+def market_is_open():
+    hr, min_, sec = get_time()
+    cum_mins = 60 * hr + min_ + sec / 60
+    dow = time.strftime("%w")
+    if dow == 0 or dow == 6:
+        return False
+    if cum_mins > 990 or cum_mins < 510:
+        return False
+    return True
+
 
 def report(history):
     with open('report.csv', 'w', newline='') as csvfile:
@@ -128,20 +126,18 @@ def report(history):
         for row in history:
             writer.writerow(row)
 
-def trade(args_from_NLP):
-    #if market is open:
-
-    #if keyword in IND_FUND_MAP.keys():
-        #ticker = IND_FUND_MAP[keyword]
-        #if safe_to_trade(ticker):
-            #if up:
-                #long(ticker)
-            #elif down:
-                #short(ticker)
-    #elif keyword in COUNT_FUND_MAP.keys():
-        #ticker = COUNT_FUND_MAP[keyword]
-        #if safe_to_trade:
-            #if up:
-                #long(ticker)
-            #elif down:
-                #short(ticker)
+def trade(cat, rating, mexico_mentions, china_mentions, portfolio):
+    ticker = None
+    if not market_is_open():
+        return portfolio
+    if keyword in IND_FUND_MAP.keys():
+        ticker = IND_FUND_MAP[keyword]
+    elif keyword in COUNT_FUND_MAP.keys():
+        ticker = COUNT_FUND_MAP[keyword]
+    if ticker:
+        current_price = get_quote(ticker)['ask_price']
+        num_shares = portfolio.cash // current_price
+        position = Stock(ticker, current_price, num_shares)
+        portfolio.add_stock(position)
+        return portfolio
+        
