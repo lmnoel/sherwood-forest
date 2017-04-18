@@ -1,6 +1,7 @@
 #This file runs the code needed for EO trading
 
 import time
+from apscheduler.schedulers.blocking import BlockingScheduler
 from auth import *
 from wh_scraper import *
 
@@ -10,11 +11,12 @@ from auth import *
 from email_alerts import *
 
 
-def go():
+def go(verbose=False):
     portfolio = Portfolio()
     portfolio.add_cash(100000)
     time_of_trade = None
-    while True:
+    if verbose: print('Started listening for the day')
+    while time.gmtime.tm_hr < 20:
         start_calc = time.time()
         titles = []
         titles = main()
@@ -49,7 +51,19 @@ def go():
             calculation duration: {} seconds\n
             '''.format(titles[0],cat, rating, mexico_mentions, china_mentions, calc_duration)
             wide_alert("Executive Order Trade Event",text)
+    if verbose: print("stopped listening for the day")
+
+
 
 
 if __name__ == '__main__':
-    go()
+
+
+    sched = BlockingScheduler()
+
+    sched.add_job(go, 'cron', day='0-5', hour='8',minute='28')
+
+    sched.start()
+
+
+

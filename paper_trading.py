@@ -128,7 +128,7 @@ def report(history):
 
 def trade(cat, rating, mexico_mentions, china_mentions, portfolio):
     ticker = None
-    if not market_is_open():
+    if not market_is_open() or rating < 0.3:
         return portfolio
     if keyword in IND_FUND_MAP.keys():
         ticker = IND_FUND_MAP[keyword]
