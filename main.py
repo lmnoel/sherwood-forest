@@ -11,7 +11,7 @@ from auth import *
 from email_alerts import *
 
 
-def go(verbose=False):
+def go(verbose=True):
     portfolio = Portfolio()
     portfolio.add_cash(100000)
     time_of_trade = None
@@ -19,7 +19,7 @@ def go(verbose=False):
     while time.gmtime.tm_hr < 20:
         start_calc = time.time()
         titles = []
-        titles = main()
+        titles = scrape()
         if time_of_trade:
             if time.time() - time_of_trade > 30*60:
                 end_cash = portfolio.liquidate()
@@ -32,6 +32,7 @@ def go(verbose=False):
                 wide_alert("Executive Order Trade Event", text)
 
         if titles:
+            if verbose: print('found an eo')
             process = subprocess.Popen(['java', '-jar', 'java/textProcessor.jar'],
                 stdout=subprocess.PIPE)
             args = process.stdout.read().decode('utf-8').split()

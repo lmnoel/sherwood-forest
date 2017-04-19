@@ -84,7 +84,7 @@ def read_datafile(verbose=False):
     if verbose: print("{} EO(s) currently on file".format(len(data[0])))
     return data[0]
 
-def main(verbose=False):
+def scrape(verbose=False):
     if verbose: urls = get_urls(verbose=True)
     if not verbose: urls = get_urls()
     if os.path.isfile('eo_data.csv'):
@@ -109,7 +109,7 @@ def main(verbose=False):
 
 if __name__ == '__main__':
     start = time.time()
-    titles = main(verbose=True)
+    titles = scrape(verbose=True)
     end = time.time()
     print('Took {} seconds'.format(end - start))
 
