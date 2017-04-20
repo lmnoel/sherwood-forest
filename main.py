@@ -16,7 +16,7 @@ def go(verbose=True):
     portfolio.add_cash(100000)
     time_of_trade = None
     while True:
-        if time.gmtime.tm_hr < 20 and time.gmtime.tm_hr > 5:
+        if time.gmtime().tm_hour < 20 and time.gmtime().tm_hour > 5:
             start_calc = time.time()
             titles = []
             titles = scrape()
