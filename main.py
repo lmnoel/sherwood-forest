@@ -1,6 +1,7 @@
 #This file runs the code needed for EO trading
 
 import time
+from time import strftime
 import schedule
 from auth import *
 from wh_scraper import *
@@ -13,6 +14,7 @@ from email_alerts import *
 
 def job(verbose=True):
     portfolio = Portfolio()
+    print(strftime("%c"))
     portfolio.add_cash(100000)
     time_of_trade = None
     delay_seconds = 30 * 60
@@ -22,8 +24,7 @@ def job(verbose=True):
         titles = []
         titles = scrape()
         if time_of_trade:
-            if (time.time() - time_of_trade >= delay_seconds) 
-                or ((time.gmtime().tm_hr * 60 + time.gmtime().tm_min) >= 1227):
+            if (time.time() - time_of_trade >= delay_seconds) or ((time.gmtime().tm_hr * 60 + time.gmtime().tm_min) >= 1227):
                 end_cash = portfolio.liquidate()
                 time_of_trade = None
                 gain = (end_cash - 100000) / 100000
