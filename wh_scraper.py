@@ -11,6 +11,7 @@ import csv
 import re
 import os.path
 import time
+from time import strftime
 
 
 def get_urls(verbose=False):
@@ -110,6 +111,7 @@ def scrape(verbose=False):
 def test():
     n = 0
     while 1:
+        print(strftime("%c"))
         n+= 1
         print(n)
         start = time.time()
@@ -117,8 +119,9 @@ def test():
         end = time.time()
 
 if __name__ == '__main__':
-    start = time.time()
-    titles = scrape(verbose=True)
-    end = time.time()
-    print('Took {} seconds'.format(end - start))
+    test()
+    #start = time.time()
+    #titles = scrape(verbose=True)
+    #end = time.time()
+    #print('Took {} seconds'.format(end - start))
 
