@@ -107,6 +107,15 @@ def scrape(verbose=False):
     write_datafile(urls)
     return titles
 
+def test():
+    n = 0
+    while 1:
+        n+= 1
+        print(n)
+        start = time.time()
+        titles = scrape(verbose=True)
+        end = time.time()
+
 if __name__ == '__main__':
     start = time.time()
     titles = scrape(verbose=True)
