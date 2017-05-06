@@ -5,7 +5,7 @@ from time import strftime
 import schedule
 from auth import *
 from wh_scraper import *
-
+import random
 import subprocess
 from paper_trading import *
 from auth import *
@@ -21,10 +21,10 @@ def job(verbose=True):
     while time.gmtime().tm_hour < 21:
         time.sleep(random.random())
         start_calc = time.time()
-        titles = []
         titles = scrape()
+        titles = [1]
         if time_of_trade:
-            if (time.time() - time_of_trade >= delay_seconds) or ((time.gmtime().tm_hr * 60 + time.gmtime().tm_min) >= 1227):
+            if (time.time() - time_of_trade >= delay_seconds) or ((time.gmtime().tm_hour * 60 + time.gmtime().tm_min) >= 1227):
                 end_cash = portfolio.liquidate()
                 time_of_trade = None
                 gain = (end_cash - 100000) / 100000
@@ -55,6 +55,7 @@ def job(verbose=True):
             china mentions: {}\n
             calculation duration: {} seconds\n
             '''.format(titles[0],cat, rating, mexico_mentions, china_mentions, calc_duration)
+            print(text)
             wide_alert("Executive Order Trade Event",text)
 
 
