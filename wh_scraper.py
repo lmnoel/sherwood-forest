@@ -12,7 +12,14 @@ import re
 import os.path
 import time
 from time import strftime
+import pandas as pd
+urllib3.disable_warnings()
 
+class Order(object):
+
+    def __init__(self,txt,filename):
+        self.txt = txt
+        self.filename = filename
 
 def get_urls(verbose=False):
     valid = True
@@ -64,49 +71,52 @@ def from_url_get_text(url_string):
     return text, title[:-26]
 
 
-def write_textfile(text):    
-    file_name = 'resources/input.txt'
+def write_textfile(text,title,path):    
+    if not os.path.exists(path):
+        os.makedirs(path)
+    file_name = path + '/'+ title
     file = open(file_name,'w') 
     file.write(text) 
     file.close() 
 
-def write_datafile(urls):
- 
-    outputFile = open('eo_data.csv', 'w', newline='\n')
-    outputWriter = csv.writer(outputFile)
-    outputWriter.writerow(urls)
+def write_datafile(df):
+    pd.DataFrame.to_csv(df, 'eo_data.csv', index=False,encoding="utf-8")
 
-    outputFile.close()
 
 def read_datafile(verbose=False):
-    file = open('eo_data.csv')
-    reader = csv.reader(file)
-    data = list(reader)
-    if verbose: print("{} EO(s) currently on file".format(len(data[0])))
-    return data[0]
+    if os.path.isfile('eo_data.csv'):
+        df = pd.read_csv('eo_data.csv', encoding="utf-8")
+    else:
+        cols = ["id", "url", "txtfile", "open_time","open_price","close_time","close_price"]
+        df = pd.DataFrame(columns=cols)
+    df.set_index('id')
+    if verbose: print("{} EO(s) currently on file".format(len(df)))
+    return df
 
 def scrape(verbose=False):
     if verbose: urls = get_urls(verbose=True)
     if not verbose: urls = get_urls()
-    if os.path.isfile('eo_data.csv'):
-        if verbose:
-            existing_urls = read_datafile(verbose=True)
-        else:
-            existing_urls = read_datafile()
-        to_download = list(set(urls) - set(existing_urls))
-        if len(to_download) == 0:
-            if verbose: print('Already up-to-date')
-            return
-    else:
-        to_download = urls
-    titles = []
+    
+    df = read_datafile()
+    to_download = list(set(urls) - set(df['url']))
+    if verbose: print("to download:",len(to_download))
+    if len(to_download) == 0:
+        if verbose: print('Already up-to-date')
+        return False
+    orders = []
     for url in to_download:
         text, title = from_url_get_text(url)
-        titles.append(title)
-        write_textfile(text)
+        title += '.txt'
+        write_textfile(text, title, 'eo_textfiles')
+        id_ = len(df) + 1
+        temp_data = pd.DataFrame({'id':id_, 'url':url, 'txtfile':title, 
+            'open_time':time.strftime("%c"), 'open_price':'None', 'close_time': 'None', 
+            'close_price': 'None'}, index=[id_])
+        df = pd.concat([df, temp_data])
+        orders.append(Order(text, title))
+    write_datafile(df)   
     if verbose: print("Downloaded {} EO(s)".format(len(to_download)))
-    write_datafile(urls)
-    return titles
+    return orders
 
 def test():
     n = 0

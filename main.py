@@ -13,16 +13,16 @@ from email_alerts import *
 
 
 def job(verbose=True):
+    print("started listening for the day. time:",time.strftime("%c"))
     portfolio = Portfolio()
-    print(strftime("%c"))
+    if verbose: print(strftime("%c"))
     portfolio.add_cash(100000)
     time_of_trade = None
     delay_seconds = 30 * 60
     while time.gmtime().tm_hour < 21:
-        time.sleep(random.random())
+        time.sleep(random.random() / 2)
         start_calc = time.time()
-        titles = scrape()
-        titles = [1]
+        orders = scrape()
         if time_of_trade:
             if (time.time() - time_of_trade >= delay_seconds) or ((time.gmtime().tm_hour * 60 + time.gmtime().tm_min) >= 1227):
                 end_cash = portfolio.liquidate()
@@ -35,28 +35,32 @@ def job(verbose=True):
                 wide_alert("Executive Order Trade Event", text)
 
 
-        if titles:
-            if verbose: print('found an eo')
-            process = subprocess.Popen(['java', '-jar', 'java/textProcessor.jar'],
-                stdout=subprocess.PIPE)
-            args = process.stdout.read().decode('utf-8').split()
-            cat = args[0]
-            rating = args[1]
-            mexico_mentions = args[2]
-            china_mentions = args[3]
-            portfolio = trade(cat, rating, mexico_mentions, china_mentions, portfolio)
-            time_of_trade = time.time()
-            calc_duration = time_of_trade - start_calc
-            text = '''
-            Triggered EO trader. EO was: {}\n
-            cat determined: {}\n
-            rating determined: {}\n
-            mexico mentions: {}\n
-            china mentions: {}\n
-            calculation duration: {} seconds\n
-            '''.format(titles[0],cat, rating, mexico_mentions, china_mentions, calc_duration)
-            print(text)
-            wide_alert("Executive Order Trade Event",text)
+        if orders:
+            for order in orders:
+                write_textfile(order.txt, 'input.txt', 'resources')
+                if verbose: print('found an eo')
+                process = subprocess.Popen(['java', '-jar', 'java/textProcessor.jar'],
+                    stdout=subprocess.PIPE)
+                args = process.stdout.read().decode('utf-8').split()
+                cat = args[0]
+                rating = args[1]
+                mexico_mentions = args[2]
+                china_mentions = args[3]
+                portfolio = trade(cat, rating, mexico_mentions, china_mentions, portfolio)
+                time_of_trade = time.time()
+                calc_duration = time_of_trade - start_calc
+                if verbose: print("calculation duration:", calc_duration)
+                text = '''
+                Triggered EO trader. EO was: {}\n
+                cat determined: {}\n
+                rating determined: {}\n
+                mexico mentions: {}\n
+                china mentions: {}\n
+                calculation duration: {} seconds\n
+                '''.format(titles[0],cat, rating, mexico_mentions, china_mentions, calc_duration)
+                print(text)
+                wide_alert("Executive Order Trade Event",text)
+    print("done listening for the day. time:",time.strftime("%c"))
 
 
 
