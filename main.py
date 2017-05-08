@@ -12,7 +12,8 @@ from auth import *
 from email_alerts import *
 
 
-def job(verbose=True):
+def job():
+    verbose = True
     print("started listening for the day. time:",time.strftime("%c"))
     portfolio = Portfolio()
     if verbose: print(strftime("%c"))
@@ -66,7 +67,8 @@ def job(verbose=True):
 
 
 if __name__ == '__main__':
-    schedule.every().monday.at("08:37").do(job)
+    print('to main')
+    schedule.every().monday.at("08:50").do(job)
     schedule.every().monday.at("08:28").do(job)
     schedule.every().tuesday.at("08:28").do(job)
     schedule.every().wednesday.at("08:28").do(job)
