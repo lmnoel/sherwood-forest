@@ -68,7 +68,7 @@ def job():
 
 if __name__ == '__main__':
     print('to main')
-    schedule.every().monday.at("08:50").do(job)
+    schedule.every().monday.at("08:54").do(job)
     schedule.every().monday.at("08:28").do(job)
     schedule.every().tuesday.at("08:28").do(job)
     schedule.every().wednesday.at("08:28").do(job)
