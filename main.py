@@ -43,16 +43,17 @@ def gmt_minutes():
     return time.gmtime().tm_hour * 60 + time.gmtime().tm_min
 
 def time_to_sell():
-    #return a string of the best time to sell
-    pass
+    THIRTY_MINS_IN_SECONDS = 1800
+    if gmt_minutes() < (MARKET_CLOSE_IN_MINUTES - 35):
+        time = gmt_minutes + 30
+    else:
+        time = (MARKET_CLOSE_IN_MINUTES - gmt_minutes() - 2)
+    time_string = "{}:{}".format(time // 60, time % 60)
+    return time_string
+
+    
 
 def schedule_sell(position):
-    print('scheduled sale')
-    THIRTY_MINS_IN_SECONDS = 1800
-    if gmt_minutes() < (MARKET_CLOSE_IN_MINUTES - 5):
-        time.sleep(THIRTY_MINS_IN_SECONDS)
-    else:
-        time.sleep((MARKET_CLOSE_IN_MINUTES - gmt_minutes() - 1) * 60)
     position.close_price = position.current_price()
     position.net_gain = (position.close_price - position.open_price) / position.open_price
     df = read_trade_datafile()
@@ -83,6 +84,7 @@ def read_trade_datafile(verbose=False):
 def run_main(verbose=True):
     if verbose: print("started listening for the day. time:",time.strftime("%c"))
     while gmt_minutes() < MARKET_CLOSE_IN_MINUTES + 1:
+        print('cyclce')
         start_calc = time.time()
         schedule.run_pending()
         try:
@@ -120,7 +122,9 @@ def run_main(verbose=True):
                 df.at[str(order.id_), 'china_mentions'] = str(order.china_mentions)
                 write_eo_datafile(df)
             for position in positions:
-                schedule.every().day.at(time.strftime("%H:%m")).do(schedule_sell(position))
+                time_string = time_to_sell()
+                schedule.every().day.at(time.strftime(time_string)).do(schedule_sell(position))
+                print('scheduled sale for: ', time_string)
 
 
     if verbose: print("done listening for the day. time:",time.strftime("%c"))
