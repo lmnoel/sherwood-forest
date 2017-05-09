@@ -33,9 +33,9 @@ TRADE_CLOSE_TEMPLATE = '''
                 Time: {} \n
                 Gain on trade was: {}\n
                 '''
-##CLOSE HAS BEEN CHANGED. SHOULD BE 20 * 60
+
 MARKET_OPEN_IN_MINUTES = 13 * 60 + 30
-MARKET_CLOSE_IN_MINUTES = 22 * 60
+MARKET_CLOSE_IN_MINUTES = 20 * 60
 
 ###CONSTANTS###
 
@@ -45,21 +45,22 @@ def gmt_minutes():
 def time_to_sell():
     THIRTY_MINS_IN_SECONDS = 1800
     if gmt_minutes() < (MARKET_CLOSE_IN_MINUTES - 35):
-        time = gmt_minutes + 30
+        time = gmt_minutes() + 30
     else:
         time = (MARKET_CLOSE_IN_MINUTES - gmt_minutes() - 2)
     time_string = "{}:{}".format(time // 60, time % 60)
     return time_string
 
     
-
+#bug with sale scheduling still
 def schedule_sell(position):
     position.close_price = position.current_price()
     position.net_gain = (position.close_price - position.open_price) / position.open_price
     df = read_trade_datafile()
     temp_data = pd.DataFrame({'ticker': position.ticker,'open_price':position.open_price,
                 'close_price':position.close_price, 'close_time':time.strftime("%c"), 
-                'linked_eo':position.linked_eo, 'net_gain':position.net_gain}, id=position.linked_eo)
+                'linked_eo':position.linked_eo.filename, 'net_gain':position.net_gain, 
+                'id':position.linked_eo.id_, 'open_time': position.open_time},index=['id'])
     df = pd.concat([df, temp_data])
     write_trade_datafile(df)
     text = TRADE_CLOSE_TEMPLATE.format(position.ticker, time.strftime("%c"),  position.net_gain)
@@ -78,13 +79,12 @@ def read_trade_datafile(verbose=False):
     else:
         cols = ["id", "open_time", "open_price", "close_time", "close_price", "ticker", "linked_eo", "net_gain"]
         df = pd.DataFrame(columns=cols)
-    df.set_index('linked_eo')
+    df.set_index('id')
     return df
 
 def run_main(verbose=True):
     if verbose: print("started listening for the day. time:",time.strftime("%c"))
     while gmt_minutes() < MARKET_CLOSE_IN_MINUTES + 1:
-        print('cyclce')
         start_calc = time.time()
         schedule.run_pending()
         try:
@@ -105,6 +105,7 @@ def run_main(verbose=True):
                 order.rating = args[1]
                 order.mexico_mentions = args[2]
                 order.china_mentions = args[3]
+                print('cat:',order.cat)
                 position = trade(order)
                 time_of_trade = time.time()
                 calc_duration = time_of_trade - start_calc
@@ -113,25 +114,26 @@ def run_main(verbose=True):
                     order.mexico_mentions, order.china_mentions, calc_duration)
                 if verbose: print(text)
                 #wide_alert("Executive Order Trade Event",text)
-                positions.append(position)
+                if position:
+                    if verbose: print('added new position in', position.ticker)
+                    positions.append(position)
                 #optimizie this reading/writing
                 df = read_eo_datafile()
-                df.at[str(order.id_), 'cat'] = order.cat
-                df.at[str(order.id_), 'rating'] = order.rating
-                df.at[str(order.id_), 'mexico_mentions'] = str(order.mexico_mentions)
-                df.at[str(order.id_), 'china_mentions'] = str(order.china_mentions)
+                df.set_value(order.id_, 'cat', order.cat)
+                df.set_value(order.id_, 'rating', order.rating)
+                df.set_value(order.id_, 'mexico_mentions', int(order.mexico_mentions))
+                df.set_value(order.id_, 'china_mentions', int(order.china_mentions))
                 write_eo_datafile(df)
             for position in positions:
                 time_string = time_to_sell()
                 schedule.every().day.at(time.strftime(time_string)).do(schedule_sell(position))
-                print('scheduled sale for: ', time_string)
 
 
     if verbose: print("done listening for the day. time:",time.strftime("%c"))
 
 
 if __name__ == '__main__':
-    
+    print('if nothing happens, market is closed. you can go to line 38 and temporarily replace 20 with a larger number')
     schedule.every().monday.at("08:28").do(run_main)
     schedule.every().tuesday.at("08:28").do(run_main)
     schedule.every().wednesday.at("08:28").do(run_main)

@@ -5,9 +5,10 @@ from auth import *
 
 
 IND_FUND_MAP = {
-    'energy' : 'IYE',
-    'infrastructure' : 'PAVE',
-    'finance' : 'IYF'
+    'Energy' : 'IYE',
+    'Infrastructure' : 'PAVE',
+    'Finance' : 'IYF',
+    'Trade' : 'USDU' # temporary
 }
 
 COUNT_FUND_MAP = {
@@ -74,7 +75,7 @@ class Stock(object):
     def __init__(self, ticker, share_price, linked_eo, num_shares=0):
         self.ticker = ticker
         self.open_price = float(share_price)
-        self.open_time = time.time()
+        self.open_time = time.strftime("%c")
         self.acquisition_cost = float(share_price) * num_shares
         self.num_shares = int(num_shares)
         self.linked_eo = linked_eo
@@ -132,12 +133,13 @@ def trade(order):
         return None
     if keyword in IND_FUND_MAP.keys():
         ticker = IND_FUND_MAP[keyword]
+        print('ticker is:',ticker)
     elif keyword in COUNT_FUND_MAP.keys():
         ticker = COUNT_FUND_MAP[keyword]
     if ticker:
         current_price = get_quote(ticker)['ask_price']
         position = Stock(ticker, current_price, order)
-        return trading_action
+        return position
     else:
         return None
         

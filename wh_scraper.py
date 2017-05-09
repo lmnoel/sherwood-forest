@@ -24,7 +24,7 @@ class Order(object):
         self.cat = None
         self.mexico_mentions = 0
         self.china_mentions = 0
-        self.id_ = id_
+        self.id_ = int(id_)
 
 def get_urls(verbose=False):
     valid = True
@@ -34,7 +34,7 @@ def get_urls(verbose=False):
     while valid:
         page += 1
         eoBaseUrl = 'https://www.whitehouse.gov/briefing-room/presidential-actions/executive-orders?term_node_tid_depth=51&page=' + str(page)
-        eoRes = requests.get(eoBaseUrl)
+        eoRes = requests.get(eoBaseUrl,timeout=1.5)
         eoRes.raise_for_status()
         soupObj = bs4.BeautifulSoup(eoRes.text, "html.parser")
         # get all the executive order links and titles
@@ -113,12 +113,12 @@ def scrape(verbose=False):
         text, title = from_url_get_text(url)
         title += '.txt'
         write_textfile(text, title, 'eo_textfiles')
-        id_ = len(df) + 1
+        id_ = len(df)
         temp_data = pd.DataFrame({'id':id_, 'url':url, 'txtfile':title, 
             'download_time':time.strftime("%c"), 'rating':'None', 'cat': 'None', 
             'mexico_mentions': 0, 'china_mentions' : 0}, index=['id'])
         df = pd.concat([df, temp_data])
-        orders.append(Order(text, id_, filename))
+        orders.append(Order(text, id_, title))
     write_eo_datafile(df)   
     if verbose: print("Downloaded {} EO(s)".format(len(to_download)))
     return orders
