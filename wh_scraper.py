@@ -17,9 +17,14 @@ urllib3.disable_warnings()
 
 class Order(object):
 
-    def __init__(self,txt,filename):
+    def __init__(self,txt,id_,filename):
         self.txt = txt
         self.filename = filename
+        self.rating = None
+        self.cat = None
+        self.mexico_mentions = 0
+        self.china_mentions = 0
+        self.id_ = id_
 
 def get_urls(verbose=False):
     valid = True
@@ -79,15 +84,15 @@ def write_textfile(text,title,path):
     file.write(text) 
     file.close() 
 
-def write_datafile(df):
+def write_eo_datafile(df):
     pd.DataFrame.to_csv(df, 'eo_data.csv', index=False,encoding="utf-8")
 
 
-def read_datafile(verbose=False):
+def read_eo_datafile(verbose=False):
     if os.path.isfile('eo_data.csv'):
         df = pd.read_csv('eo_data.csv', encoding="utf-8")
     else:
-        cols = ["id", "url", "txtfile", "open_time","open_price","close_time","close_price"]
+        cols = ["id", "url", "txtfile", "download_time", "rating", "cat", "mexico_mentions", "china_mentions"]
         df = pd.DataFrame(columns=cols)
     df.set_index('id')
     if verbose: print("{} EO(s) currently on file".format(len(df)))
@@ -97,7 +102,7 @@ def scrape(verbose=False):
     if verbose: urls = get_urls(verbose=True)
     if not verbose: urls = get_urls()
     
-    df = read_datafile()
+    df = read_eo_datafile()
     to_download = list(set(urls) - set(df['url']))
     if verbose: print("to download:",len(to_download))
     if len(to_download) == 0:
@@ -110,28 +115,18 @@ def scrape(verbose=False):
         write_textfile(text, title, 'eo_textfiles')
         id_ = len(df) + 1
         temp_data = pd.DataFrame({'id':id_, 'url':url, 'txtfile':title, 
-            'open_time':time.strftime("%c"), 'open_price':'None', 'close_time': 'None', 
-            'close_price': 'None'}, index=[id_])
+            'download_time':time.strftime("%c"), 'rating':'None', 'cat': 'None', 
+            'mexico_mentions': 0, 'china_mentions' : 0}, index=['id'])
         df = pd.concat([df, temp_data])
-        orders.append(Order(text, title))
-    write_datafile(df)   
+        orders.append(Order(text, id_, filename))
+    write_eo_datafile(df)   
     if verbose: print("Downloaded {} EO(s)".format(len(to_download)))
     return orders
 
-def test():
-    n = 0
-    while 1:
-        print(strftime("%c"))
-        n+= 1
-        print(n)
-        start = time.time()
-        titles = scrape(verbose=True)
-        end = time.time()
 
 if __name__ == '__main__':
-    test()
-    #start = time.time()
-    #titles = scrape(verbose=True)
-    #end = time.time()
-    #print('Took {} seconds'.format(end - start))
+    start = time.time()
+    titles = scrape(verbose=True)
+    end = time.time()
+    print('Took {} seconds'.format(end - start))
 

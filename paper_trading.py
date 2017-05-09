@@ -71,13 +71,14 @@ class Portfolio(object):
 class Stock(object):
     '''
     '''
-    def __init__(self, ticker, share_price, num_shares):
+    def __init__(self, ticker, share_price, linked_eo, num_shares=0):
         self.ticker = ticker
-        self.acquisition_price = float(share_price)
-        self.acquisition_time = time.time()
+        self.open_price = float(share_price)
+        self.open_time = time.time()
         self.acquisition_cost = float(share_price) * num_shares
         self.num_shares = int(num_shares)
-        return
+        self.linked_eo = linked_eo
+        self.net_gain = 0
 
     def current_price(self):
         quote = get_quote(self.ticker)
@@ -97,8 +98,6 @@ class Stock(object):
     def sell(self):
         #temp code, for paper trading
         return self.current_value()
-
-
 
 def get_time():
 
@@ -126,18 +125,19 @@ def report(history):
         for row in history:
             writer.writerow(row)
 
-def trade(cat, rating, mexico_mentions, china_mentions, portfolio):
+def trade(order):
     ticker = None
-    if not market_is_open() or rating < 0.3:
-        return portfolio
+    keyword = order.cat
+    if not market_is_open() or abs(rating) < 0.3:
+        return None
     if keyword in IND_FUND_MAP.keys():
         ticker = IND_FUND_MAP[keyword]
     elif keyword in COUNT_FUND_MAP.keys():
         ticker = COUNT_FUND_MAP[keyword]
     if ticker:
         current_price = get_quote(ticker)['ask_price']
-        num_shares = portfolio.cash // current_price
-        position = Stock(ticker, current_price, num_shares)
-        portfolio.add_stock(position)
-        return portfolio
+        position = Stock(ticker, current_price, order)
+        return trading_action
+    else:
+        return None
         
