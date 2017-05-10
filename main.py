@@ -65,7 +65,7 @@ def schedule_sell(position):
     write_trade_datafile(df)
     text = TRADE_CLOSE_TEMPLATE.format(position.ticker, time.strftime("%c"),  position.net_gain)
     print(text)
-    #wide_alert("Executive Order Trade Event", text)
+    wide_alert("Executive Order Trade Event", text)
     return schedule.CancelJob
 
 
@@ -113,7 +113,7 @@ def run_main(verbose=True):
                 text = TRADE_OPEN_TEMPLATE.format(order.filename, order.cat, order.rating, 
                     order.mexico_mentions, order.china_mentions, calc_duration)
                 if verbose: print(text)
-                #wide_alert("Executive Order Trade Event",text)
+                wide_alert("Executive Order Trade Event",text)
                 if position:
                     if verbose: print('added new position in', position.ticker)
                     positions.append(position)
