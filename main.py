@@ -35,7 +35,7 @@ TRADE_CLOSE_TEMPLATE = '''
                 '''
 
 MARKET_OPEN_IN_MINUTES = 13 * 60 + 30
-MARKET_CLOSE_IN_MINUTES = 20 * 60
+MARKET_CLOSE_IN_MINUTES = 27 * 60
 
 ###CONSTANTS###
 
@@ -65,7 +65,7 @@ def schedule_sell(position):
     write_trade_datafile(df)
     text = TRADE_CLOSE_TEMPLATE.format(position.ticker, time.strftime("%c"),  position.net_gain)
     print(text)
-    wide_alert("Executive Order Trade Event", text)
+    #wide_alert("Executive Order Trade Event", text)
     return schedule.CancelJob
 
 
@@ -123,7 +123,7 @@ def run_main(verbose=True):
                 df.set_value(order.id_, 'rating', order.rating)
                 df.set_value(order.id_, 'mexico_mentions', int(order.mexico_mentions))
                 df.set_value(order.id_, 'china_mentions', int(order.china_mentions))
-                write_eo_datafile(df)
+                #write_eo_datafile(df)
             for position in positions:
                 time_string = time_to_sell()
                 schedule.every().day.at(time.strftime(time_string)).do(schedule_sell(position))
