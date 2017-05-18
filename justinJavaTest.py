@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 
 process = subprocess.Popen(['java', '-jar', 'java/textProcessor.jar'],
