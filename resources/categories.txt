@@ -78,6 +78,12 @@ infrastructure:electrical:3
 infrastructure:grid:2
 Infrastructure:pipeline:4
 infrastructure:pipelines:4
+marijuana:cannabis:5
+marijuana:marijuana:5
+marijuana:DEA:3
+marijuana:drug:2
+marijuana:decriminalization:4
+marijuana:criminal:2
 
 Categories
 
@@ -177,4 +183,15 @@ infrastructure:Expedite:.7
 Infrastructure:immediate:.6
 infrastructure:immediately:.6
 
-
+marijuana:decriminalize:.9
+marijuana:deschedule:.9
+marijuana:criminals:-.8
+marijuana:criminal:-.6
+marijuana:bad:-.8
+marijuana:negative:-.5
+marijuana:horrific:-.5
+marijuana:crime:-.6
+marijuana:crimes:-.6
+marijuana:fair:.7
+marijuana:reform:.5
+marijuana:illegal:-.4
