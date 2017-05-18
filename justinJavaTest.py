@@ -2,7 +2,7 @@ import subprocess
 
 
 
-process = subprocess.Popen(['textProcessor.jar'],
+process = subprocess.Popen(['java/textProcessor.jar'],
 	stdout=subprocess.PIPE)
 args = process.stdout.read().decode('utf-8').split()
 
