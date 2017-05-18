@@ -16,6 +16,7 @@ import subprocess
 from paper_trading import *
 from auth import *
 from email_alerts import *
+import sys
 
 
 ###CONSTANTS###
@@ -33,7 +34,7 @@ TRADE_CLOSE_TEMPLATE = '''
                 Time: {} \n
                 Gain on trade was: {}\n
                 '''
-
+#line 38 should be 20 * 60
 MARKET_OPEN_IN_MINUTES = 13 * 60 + 30
 MARKET_CLOSE_IN_MINUTES = 20 * 60
 
@@ -133,6 +134,7 @@ def run_main(verbose=True):
 
 
 if __name__ == '__main__':
+
     print('if nothing happens, market is closed. you can go to line 38 and temporarily replace 20 with a larger number')
     schedule.every().monday.at("08:28").do(run_main)
     schedule.every().tuesday.at("08:28").do(run_main)
@@ -142,7 +144,11 @@ if __name__ == '__main__':
     if gmt_minutes() > MARKET_OPEN_IN_MINUTES and gmt_minutes() < MARKET_CLOSE_IN_MINUTES:
         print('started late')
         run_main()
-    
+    elif len(sys.argv) > 1:
+        if sys.argv[1] == '-o':
+            MARKET_CLOSE_IN_MINUTES = 100 * 60
+            print("enabled manual overide. be sure not to let this run during regular trading hours")
+            run_main()
     while 1:
         schedule.run_pending()
         time.sleep(1)
