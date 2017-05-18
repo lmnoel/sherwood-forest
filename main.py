@@ -99,7 +99,7 @@ def run_main(verbose=True):
                 write_textfile(order.txt, 'input.txt', 'resources')
                 if verbose: print('found an eo')
                 process = subprocess.Popen(['java', '-jar', 'java/textProcessor.jar'],
-                    stdout=subprocess.PIPE)
+                    stdout=subprocess.PIPE, shell=True)
                 args = process.stdout.read().decode('utf-8').split()
                 order.cat = args[0]
                 order.rating = args[1]
