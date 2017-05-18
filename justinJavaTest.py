@@ -1,7 +1,8 @@
 import subprocess
 
 
-process = subprocess.Popen(['java', '-jar', 'java/textProcessor.jar'],
+
+process = subprocess.Popen(['../java', '-jar', 'textProcessor.jar'],
 	stdout=subprocess.PIPE)
 args = process.stdout.read().decode('utf-8').split()
 
