@@ -83,7 +83,7 @@ def read_trade_datafile(verbose=False):
     df.set_index('id')
     return df
 
-def run_main(verbose=True):
+def run_main(verbose=True, notify=True):
     if verbose: print("started listening for the day. time:",time.strftime("%c"))
     while gmt_minutes() < MARKET_CLOSE_IN_MINUTES + 1:
         start_calc = time.time()
@@ -135,6 +135,10 @@ def run_main(verbose=True):
 
 if __name__ == '__main__':
 
+    if 'd' in sys.argv:
+        notify = False
+    else:
+        notify = True
     print('if nothing happens, market is closed. you can go to line 38 and temporarily replace 20 with a larger number')
     schedule.every().monday.at("08:28").do(run_main)
     schedule.every().tuesday.at("08:28").do(run_main)
@@ -143,12 +147,12 @@ if __name__ == '__main__':
     schedule.every().friday.at("08:28").do(run_main)
     if gmt_minutes() > MARKET_OPEN_IN_MINUTES and gmt_minutes() < MARKET_CLOSE_IN_MINUTES:
         print('started late')
-        run_main()
+        run_main(notify=notify)
     elif len(sys.argv) > 1:
-        if sys.argv[1] == '-o':
+        if '-o' in sys.argv:
             MARKET_CLOSE_IN_MINUTES = 100 * 60
             print("enabled manual overide. be sure not to let this run during regular trading hours")
-            run_main()
+            run_main(notify=notify)
     while 1:
         schedule.run_pending()
         time.sleep(1)
