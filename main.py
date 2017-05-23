@@ -54,7 +54,7 @@ def time_to_sell():
 
     
 #bug with sale scheduling still
-def schedule_sell(position):
+def schedule_sell(position, notify=True):
     position.close_price = position.current_price()
     position.net_gain = (position.close_price - position.open_price) / position.open_price
     df = read_trade_datafile()
@@ -66,7 +66,7 @@ def schedule_sell(position):
     write_trade_datafile(df)
     text = TRADE_CLOSE_TEMPLATE.format(position.ticker, time.strftime("%c"),  position.net_gain)
     print(text)
-    wide_alert("Executive Order Trade Event", text)
+    if notify: wide_alert("Executive Order Trade Event", text)
     return schedule.CancelJob
 
 
@@ -114,7 +114,7 @@ def run_main(verbose=True, notify=True):
                 text = TRADE_OPEN_TEMPLATE.format(order.filename, order.cat, order.rating, 
                     order.mexico_mentions, order.china_mentions, calc_duration)
                 if verbose: print(text)
-                wide_alert("Executive Order Trade Event",text)
+                if notify: wide_alert("Executive Order Trade Event",text)
                 if position:
                     if verbose: print('added new position in', position.ticker)
                     positions.append(position)
@@ -127,7 +127,7 @@ def run_main(verbose=True, notify=True):
                 write_eo_datafile(df)
             for position in positions:
                 time_string = time_to_sell()
-                schedule.every().day.at(time.strftime(time_string)).do(schedule_sell(position))
+                schedule.every().day.at(time.strftime(time_string)).do(schedule_sell(position,notify=notify))
 
 
     if verbose: print("done listening for the day. time:",time.strftime("%c"))
@@ -135,7 +135,7 @@ def run_main(verbose=True, notify=True):
 
 if __name__ == '__main__':
 
-    if 'd' in sys.argv:
+    if '-d' in sys.argv:
         notify = False
     else:
         notify = True
