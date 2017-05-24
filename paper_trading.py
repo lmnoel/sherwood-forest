@@ -7,14 +7,12 @@ from auth import *
 IND_FUND_MAP = {
     'Energy' : 'IYE',
     'Infrastructure' : 'PAVE',
-    'Finance' : 'IYF',
-    'Trade' : 'USDU' # temporary
+    'Finance' : 'IYF'
 }
 
 COUNT_FUND_MAP = {
     'china' : 'CYB',
     'mexico' : 'FXM',
-    'general' : 'FXM',
     'dollar' : 'USDU'
 }
 
@@ -131,12 +129,20 @@ def trade(order):
     keyword = order.cat
     if not market_is_open() or abs(rating) < 0.3:
         return None
-    if keyword in IND_FUND_MAP.keys():
+    if order.mexico_mentions > 2:
+        if rating < -0.3:
+            ticker = COUNT_FUND_MAP['dollar']
+        else:
+            ticker = COUNT_FUND_MAP['mexico']
+    elif order.china_mentions > 2:
+        if rating < -0.3:
+            ticker = COUNT_FUND_MAP['dollar']
+        else:
+            ticker = COUNT_FUND_MAP['china']
+    elif keyword in IND_FUND_MAP.keys():
         ticker = IND_FUND_MAP[keyword]
-        print('ticker is:',ticker)
-    elif keyword in COUNT_FUND_MAP.keys():
-        ticker = COUNT_FUND_MAP[keyword]
     if ticker:
+        print('ticker is:',ticker)
         current_price = get_quote(ticker)['ask_price']
         position = Stock(ticker, current_price, order)
         return position
