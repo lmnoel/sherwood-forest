@@ -141,6 +141,9 @@ def trade(order):
             ticker = COUNT_FUND_MAP['china']
     elif keyword in IND_FUND_MAP.keys():
         ticker = IND_FUND_MAP[keyword]
+    elif keyword == 'Trade':
+        if rating > .3:
+            ticker = 'USDU'
     if ticker:
         print('ticker is:',ticker)
         current_price = get_quote(ticker)['ask_price']
