@@ -61,6 +61,8 @@ if __name__ == '__main__':
     schedule.every().wednesday.at("08:28").do(job)
     schedule.every().thursday.at("08:28").do(job)
     schedule.every().friday.at("08:28").do(job)
+    schedule.every().saturday.at("08:28").do(job)
+    schedule.every().sunday.at("08:28").do(job)
     while 1:
         schedule.run_pending()
         time.sleep(1)
