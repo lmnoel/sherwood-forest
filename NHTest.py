@@ -43,8 +43,8 @@ def write_nh_datafile(df):
 
 def job():
     try:
-    update_input()
-    rating = process_headlines()
+        update_input()
+        rating = process_headlines()
     except:
         rating = 'unable to access server'
     df = read_nh_datafile()
