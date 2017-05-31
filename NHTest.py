@@ -43,10 +43,10 @@ def write_nh_datafile(df):
 
 def job():
     try:
-        update_input()
-        rating = process_headlines()
+    update_input()
+    rating = process_headlines()
     except:
-        rating = 0
+        rating = 'unable to access server'
     df = read_nh_datafile()
     id_ = len(df)
     temp_data = pd.DataFrame({'id':id_, 'rating':rating, 
