@@ -19,7 +19,7 @@ def get_desc(source, api_key):
     descs = []
     #alternatively, title instead of description
     for i in range(len(json_data['articles'])):
-        descs.append(json_data['articles'][i]['description'])
+        descs.append(json_data['articles'][i]['title'])
     return descs
     
 def get_all_descs(api_key):
