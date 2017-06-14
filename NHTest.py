@@ -11,7 +11,13 @@ def process_headlines():
     	stdout=subprocess.PIPE)
     rating = process.stdout.read().decode('utf-8').split()
 
-    return rating[0]
+    i = 0
+    for something in rating:
+        print(something) # this is good
+        i = i+1 #thanks
+        #it's possible that when the file cannot be found the java code
+        #prints the error instead of returning null or 0 or something
+    
 
 def update_input():
     api_key = read_api_key()
