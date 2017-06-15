@@ -55,7 +55,10 @@ def get_quote(ticker):
 
     r = requests.get('https://api.robinhood.com/quotes/{}/'.format(ticker))
 
-    return r.json()
+    try:
+        return float(r.json()['ask_price'])
+    except:
+        return r.json()['ask_price']
 
 def notify(order_dat):
     return

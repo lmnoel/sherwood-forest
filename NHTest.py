@@ -5,6 +5,7 @@ import schedule
 import pandas as pd
 from time import strftime
 import time
+from auth import *
 
 def process_headlines():
     process = subprocess.Popen(['java', '-jar', 'NHTextProcessor.jar'],
@@ -33,7 +34,7 @@ def read_nh_datafile(verbose=False):
     if os.path.isfile('nh_data.csv'):
         df = pd.read_csv('nh_data.csv', encoding="utf-8")
     else:
-        cols = ["rating", "date", "id"]
+        cols = ["rating", "date", "VXX", "IVV", "morning_test", "id"]
         df = pd.DataFrame(columns=cols)
     df.set_index('id')
     return df
@@ -41,28 +42,39 @@ def read_nh_datafile(verbose=False):
 def write_nh_datafile(df):
     pd.DataFrame.to_csv(df, 'nh_data.csv', index=False,encoding="utf-8", sep=' ')
 
-def job():
+def job(morning_test):
     try:
         update_input()
         rating = process_headlines()
+        VXX_price = get_quote("VXX")
+        IVV_price = get_quote("IVV")
     except:
         rating = 'unable to access server'
+        VXX_price = -1
+        IVV_price = -1
     df = read_nh_datafile()
     id_ = len(df)
-    temp_data = pd.DataFrame({'id':id_, 'rating':rating, 
+    temp_data = pd.DataFrame({'id':id_, 'rating':rating, 'VXX':VXX_price,
+        'IVV':IVV_price, 'morning_test':morning_test, 
         'date':time.strftime("%c")}, index=['id'])
     df = pd.concat([df, temp_data])
     write_nh_datafile(df)
 
 if __name__ == '__main__':
-    job()
-    schedule.every().monday.at("08:28").do(job)
-    schedule.every().tuesday.at("08:28").do(job)
-    schedule.every().wednesday.at("08:28").do(job)
-    schedule.every().thursday.at("08:28").do(job)
-    schedule.every().friday.at("08:28").do(job)
-    schedule.every().saturday.at("08:28").do(job)
-    schedule.every().sunday.at("08:28").do(job)
+    schedule.every().monday.at("09:28").do(job(True))
+    schedule.every().tuesday.at("09:28").do(job(True))
+    schedule.every().wednesday.at("09:28").do(job(True))
+    schedule.every().thursday.at("09:28").do(job(True))
+    schedule.every().friday.at("09:28").do(job(True))
+    schedule.every().saturday.at("09:28").do(job(True))
+    schedule.every().sunday.at("09:28").do(job(True))
+    schedule.every().monday.at("16:28").do(job(False))
+    schedule.every().tuesday.at("16:28").do(job(False))
+    schedule.every().wednesday.at("16:28").do(job(False))
+    schedule.every().thursday.at("16:28").do(job(False))
+    schedule.every().friday.at("16:28").do(job(False))
+    schedule.every().saturday.at("16:28").do(job(False))
+    schedule.every().sunday.at("16:28").do(job(False))
     while 1:
         schedule.run_pending()
         time.sleep(1)
