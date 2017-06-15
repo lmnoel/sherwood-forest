@@ -16,7 +16,7 @@ def process_headlines():
 
 def update_input():
     api_key = read_api_key()
-    headlines = get_all_descs(api_key)
+    headlines = get_all_headlines(api_key)
 
     write_textfile(headlines, 'input.txt','NHResources')
 
@@ -40,7 +40,7 @@ def read_nh_datafile(verbose=False):
     return df
 
 def write_nh_datafile(df):
-    pd.DataFrame.to_csv(df, 'nh_data.csv', index=False,encoding="utf-8", sep=' ')
+    pd.DataFrame.to_csv(df, 'nh_data.csv', index=False,encoding="utf-8")
 
 def job(morning_test):
     try:
@@ -59,6 +59,7 @@ def job(morning_test):
         'date':time.strftime("%c")}, index=['id'])
     df = pd.concat([df, temp_data])
     write_nh_datafile(df)
+    return df
 
 if __name__ == '__main__':
     schedule.every().monday.at("09:28").do(job(True))
