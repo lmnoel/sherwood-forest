@@ -3,8 +3,8 @@ eo_textfiles
 __pycache__
 news_api_key.txt
 NHResources/input.txt
-
-
+NHresources/input.txt
+EOresources/input.txt
 
 
 
