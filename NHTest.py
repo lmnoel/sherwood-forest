@@ -6,6 +6,9 @@ import pandas as pd
 from time import strftime
 import time
 from auth import *
+import csv
+
+#IMPORTAN NOTE! This program the system time is on eastern.
 
 def process_headlines():
     process = subprocess.Popen(['java', '-jar', 'NHTextProcessor.jar'],
@@ -18,7 +21,7 @@ def update_input():
     api_key = read_api_key()
     headlines = get_all_headlines(api_key)
 
-    write_textfile(headlines, 'input.txt','NHResources')
+    write_textfile(headlines, 'input.txt','NHresources')
 
 def write_textfile(text,title,path):    
     if not os.path.exists(path):
@@ -36,30 +39,26 @@ def read_nh_datafile(verbose=False):
     else:
         cols = ["rating", "date", "VXX", "IVV", "morning_test", "id"]
         df = pd.DataFrame(columns=cols)
-    df.set_index('id')
     return df
-
-def write_nh_datafile(df):
-    pd.DataFrame.to_csv(df, 'nh_data.csv', index=False,encoding="utf-8")
 
 def job(morning_test):
     try:
         update_input()
         rating = process_headlines()
+        rating = float(rating[0])
         VXX_price = get_quote("VXX")
         IVV_price = get_quote("IVV")
+        print("VXX: {}, IVV: {}, rating: {}".format(VXX_price, IVV_price, rating))
     except:
-        rating = 'unable to access server'
+        rating = 0
         VXX_price = -1
         IVV_price = -1
     df = read_nh_datafile()
     id_ = len(df)
-    temp_data = pd.DataFrame({'id':id_, 'rating':rating, 'VXX':VXX_price,
-        'IVV':IVV_price, 'morning_test':morning_test, 
-        'date':time.strftime("%c")}, index=['id'])
-    df = pd.concat([df, temp_data])
-    write_nh_datafile(df)
-    return df
+    fields = [rating, time.strftime("%c"), VXX_price, IVV_price, morning_test, id_]
+    with open(r'nh_data.csv', 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow(fields)
 
 if __name__ == '__main__':
     schedule.every().monday.at("09:28").do(job(True))
