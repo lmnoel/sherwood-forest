@@ -37,7 +37,7 @@ def read_nh_datafile(verbose=False):
     if os.path.isfile('nh_data.csv'):
         df = pd.read_csv('nh_data.csv', encoding="utf-8")
     else:
-        cols = ["rating", "date", "VXX", "IVV", "morning_test", "id"]
+        cols = ["id", "date", "rating", "VXX", "IVV", "morning_test"]
         df = pd.DataFrame(columns=cols)
     return df
 
@@ -55,7 +55,7 @@ def job(morning_test):
         IVV_price = -1
     df = read_nh_datafile()
     id_ = len(df)
-    fields = [rating, time.strftime("%c"), VXX_price, IVV_price, morning_test, id_]
+    fields = [id_, time.strftime("%c"), rating, VXX_price, IVV_price, morning_test]
     with open(r'nh_data.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
