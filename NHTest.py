@@ -9,6 +9,7 @@ from auth import *
 import csv
 
 #IMPORTAN NOTE! This program the system time is on eastern.
+#Also, remember to check for inconsistancies in and around daylight savings
 
 def process_headlines():
     process = subprocess.Popen(['java', '-jar', 'NHTextProcessor.jar'],
@@ -16,6 +17,10 @@ def process_headlines():
     rating = process.stdout.read().decode('utf-8').split()
     return rating
     
+def gmt_minutes():
+    hours = time.gmtime().tm_hour
+    minutes = time.gmtime().tm_min
+    return hours * 60 + minutes
 
 def update_input():
     api_key = read_api_key()
@@ -41,7 +46,7 @@ def read_nh_datafile(verbose=False):
         df = pd.DataFrame(columns=cols)
     return df
 
-def job(morning_test):
+def job():
     try:
         update_input()
         rating = process_headlines()
@@ -53,6 +58,10 @@ def job(morning_test):
         rating = 0
         VXX_price = -1
         IVV_price = -1
+    if gmt_minutes() < 900:
+        morning_test = True
+    else:
+        morning_test = False
     df = read_nh_datafile()
     id_ = len(df)
     fields = [id_, time.strftime("%c"), rating, VXX_price, IVV_price, morning_test]
@@ -61,20 +70,20 @@ def job(morning_test):
         writer.writerow(fields)
 
 if __name__ == '__main__':
-    schedule.every().monday.at("09:28").do(job(True))
-    schedule.every().tuesday.at("09:28").do(job(True))
-    schedule.every().wednesday.at("09:28").do(job(True))
-    schedule.every().thursday.at("09:28").do(job(True))
-    schedule.every().friday.at("09:28").do(job(True))
-    schedule.every().saturday.at("09:28").do(job(True))
-    schedule.every().sunday.at("09:28").do(job(True))
-    schedule.every().monday.at("15:58").do(job(False))
-    schedule.every().tuesday.at("15:58").do(job(False))
-    schedule.every().wednesday.at("15:58").do(job(False))
-    schedule.every().thursday.at("15:58").do(job(False))
-    schedule.every().friday.at("15:58").do(job(False))
-    schedule.every().saturday.at("15:58").do(job(False))
-    schedule.every().sunday.at("15:58").do(job(False))
+    schedule.every().monday.at("09:28").do(job)
+    schedule.every().tuesday.at("09:28").do(job)
+    schedule.every().wednesday.at("09:28").do(job)
+    schedule.every().thursday.at("09:28").do(job)
+    schedule.every().friday.at("09:28").do(job)
+    schedule.every().saturday.at("09:28").do(job)
+    schedule.every().sunday.at("09:28").do(job)
+    schedule.every().monday.at("15:58").do(job)
+    schedule.every().tuesday.at("15:58").do(job)
+    schedule.every().wednesday.at("15:58").do(job)
+    schedule.every().thursday.at("15:58").do(job)
+    schedule.every().friday.at("15:58").do(job)
+    schedule.every().saturday.at("15:58").do(job)
+    schedule.every().sunday.at("15:58").do(job)
     while 1:
         schedule.run_pending()
         time.sleep(1)
