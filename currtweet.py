@@ -33,31 +33,44 @@ def read_api_keys():
     CONSUMER_KEY = s[2]
     CONSUMER_SECRET = s[3]
 
-read_api_keys()
-oauth = OAuth(ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
-
-# Initiate the connection to Twitter Streaming API
-twitter_stream = TwitterStream(auth=oauth)
-
-try:
-    # Get a sample of the public data following through Twitter
-    iterator = twitter_stream.statuses.filter(track="pound, dollar, euro",language="en")
-except TwitterHTTPError:
-    print("Exceeded call limit")
-
 # Save each tweet in the stream to file 
-def run_stream():
+def run_stream(keywords,filter_by_followers=None):
+    try:
+        read_api_keys()
+        oauth = OAuth(ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
+    except:
+        print("api keys are invalid (either missing or out of date")
+        return
+    # Initiate the connection to Twitter Streaming API
+    twitter_stream = TwitterStream(auth=oauth)
+    iterator_succeeded = False
+    while not iterator_succeeded:
+        try:
+            # Get a sample of the public data following through Twitter
+            iterator = twitter_stream.statuses.filter(track=keywords,language="en")
+            iterator_succeeded=True
+        except TwitterHTTPError:
+            print("Exceeded call limit. will sleep for 30 seconds then attempt to reconnect")
+            iterator_succeeded = False
+            time.sleep(30)
     for tweet in iterator:
         filename = r'tweet_data/'+ time.strftime("%d-%m-%y") + '.csv'
         if not os.path.exists('tweet_data'):
             os.makedirs('tweet_data')
         fields = [tweet['created_at'],tweet['user']['id'],
             tweet['user']['followers_count'], tweet['text']]
-        with open(filename, 'a') as f:
-            writer = csv.writer(f)
-            writer.writerow(fields)
-        print(fields)
+        if filter_by_followers:
+            if filter_by_followers > fields[2]:
+                with open(filename, 'a') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(fields)
+                print(fields)
+        else:
+            with open(filename, 'a') as f:
+                writer = csv.writer(f)
+                writer.writerow(fields)
+            print(fields)
 
 if __name__ == '__main__':
-    run_stream()
+    run_stream('dollars',50)
     
