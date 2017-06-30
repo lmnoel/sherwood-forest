@@ -42,7 +42,7 @@ def read_nh_datafile(verbose=False):
     if os.path.isfile('nh_data.csv'):
         df = pd.read_csv('nh_data.csv', encoding="utf-8")
     else:
-        cols = ["id", "date", "rating", "VXX", "IVV", "morning_test"]
+        cols = ["id", "date", "rating", "GLD", "IVV", "morning_test"]
         df = pd.DataFrame(columns=cols)
     return df
 
@@ -51,12 +51,12 @@ def job():
         update_input()
         rating = process_headlines()
         rating = float(rating[0])
-        VXX_price = get_quote("VXX")
+        GLD_price = get_quote("GLD")
         IVV_price = get_quote("IVV")
-        print("VXX: {}, IVV: {}, rating: {}".format(VXX_price, IVV_price, rating))
+        print("GLD: {}, IVV: {}, rating: {}".format(GLD_price, IVV_price, rating))
     except:
         rating = 0
-        VXX_price = -1
+        GLD_price = -1
         IVV_price = -1
     if gmt_minutes() < 900:
         morning_test = True
@@ -64,7 +64,7 @@ def job():
         morning_test = False
     df = read_nh_datafile()
     id_ = len(df)
-    fields = [id_, time.strftime("%c"), rating, VXX_price, IVV_price, morning_test]
+    fields = [id_, time.strftime("%c"), rating, GLD_price, IVV_price, morning_test]
     with open(r'nh_data.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
