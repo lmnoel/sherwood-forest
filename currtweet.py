@@ -72,5 +72,5 @@ def run_stream(keywords,filter_by_followers=None):
             print(fields)
 
 if __name__ == '__main__':
-    run_stream('dollars',50)
+    run_stream('GBRUSD, USDGBR',50)
     

@@ -58,7 +58,7 @@ def get_quote(ticker):
     try:
         return float(r.json()['ask_price'])
     except:
-        return r.json()['ask_price']
+        return None
 
 def notify(order_dat):
     return
