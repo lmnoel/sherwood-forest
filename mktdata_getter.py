@@ -132,7 +132,7 @@ def job():
         present = datetime.now()
         today929 = present.replace(hour=9, minute=29,second=0, microsecond=0)
         today1601 = present.replace(hour=16, minute=1,second=0, microsecond=0)
-        if present < today929 or present > today1601:
+        if present > today929 and present < today1601:
             update_all('SP100_data')
 
     except:
