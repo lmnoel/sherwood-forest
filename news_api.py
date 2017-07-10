@@ -1,9 +1,7 @@
 import requests
 import json
 
-SOURCES = ['bloomberg', 'business-insider','associated-press','cnbc','cnn',
-           'financial-times','fortune','reuters','the-new-york-times',
-           'the-wall-street-journal','the-washington-post']
+SOURCES = ['bloomberg','cnbc', 'financial-times','fortune','reuters','the-wall-street-journal']
 
 
 def read_api_key():
