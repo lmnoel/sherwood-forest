@@ -8,6 +8,10 @@ import time
 from auth import *
 import csv
 
+SOURCES = ['bloomberg','cnbc', 'financial-times','fortune','reuters','the-wall-street-journal',
+            'associated-press', 'business-insider', 'cnn', 'fortune', 'the-economist', 'the-new-york-times',
+            'the-washington-post']
+
 #IMPORTAN NOTE! This program the system time is on eastern.
 #Also, remember to check for inconsistancies in and around daylight savings
 
@@ -15,7 +19,7 @@ def process_headlines():
     process = subprocess.Popen(['java', '-jar', 'NHTextProcessor.jar'],
     	stdout=subprocess.PIPE)
     rating = process.stdout.read().decode('utf-8').split()
-    return rating
+    return float(rating[0])
     
 def gmt_minutes():
     hours = time.gmtime().tm_hour
@@ -25,6 +29,12 @@ def gmt_minutes():
 def update_input():
     api_key = read_api_key()
     headlines = get_all_headlines(api_key)
+
+    write_textfile(headlines, 'input.txt','NHresources')
+
+def update_one_input(source):
+    api_key = read_api_key()
+    headlines = get_headline(source, api_key)
 
     write_textfile(headlines, 'input.txt','NHresources')
 
@@ -42,20 +52,19 @@ def read_nh_datafile(verbose=False):
     if os.path.isfile('nh_data.csv'):
         df = pd.read_csv('nh_data.csv', encoding="utf-8")
     else:
-        cols = ["id", "date", "rating", "GLD", "IVV", "morning_test"]
+        cols = ["id", "date", "GLD", "IVV", "morning_test"] + SOURCES
         df = pd.DataFrame(columns=cols)
     return df
 
 def job():
+    ratings = []
+    for source in SOURCES:
+        update_one_input(source)
+        ratings.append(process_headlines())
     try:
-        update_input()
-        rating = process_headlines()
-        rating = float(rating[0])
-        GLD_price = get_quote("GLD")
-        IVV_price = get_quote("IVV")
-        print("GLD: {}, IVV: {}, rating: {}".format(GLD_price, IVV_price, rating))
+        GLD_price = get_quote("GLD")['previous_close']
+        IVV_price = get_quote("IVV")['previous_close']
     except:
-        rating = 0
         GLD_price = -1
         IVV_price = -1
     if gmt_minutes() < 900:
@@ -64,22 +73,24 @@ def job():
         morning_test = False
     df = read_nh_datafile()
     id_ = len(df)
-    fields = [id_, time.strftime("%c"), rating, GLD_price, IVV_price, morning_test]
+    fields = [id_, time.strftime("%c"), GLD_price, IVV_price, morning_test] + ratings
+    if not os.path.isfile('nh_data.csv'):
+        with open(r'nh_data.csv', 'a') as f:
+            cols = ["id", "date", "GLD", "IVV", "morning_test"] + SOURCES
+            writer = csv.writer(f)
+            writer.writerow(cols)
     with open(r'nh_data.csv', 'a') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
 if __name__ == '__main__':
-    schedule.every().monday.at("09:28").do(job)
-    schedule.every().tuesday.at("09:28").do(job)
-    schedule.every().wednesday.at("09:28").do(job)
-    schedule.every().thursday.at("09:28").do(job)
-    schedule.every().friday.at("09:28").do(job)
-    schedule.every().monday.at("15:58").do(job)
-    schedule.every().tuesday.at("15:58").do(job)
-    schedule.every().wednesday.at("15:58").do(job)
-    schedule.every().thursday.at("15:58").do(job)
-    schedule.every().friday.at("15:58").do(job)
+    TIMES = ["09:28","15:58"]
+    for time in TIMES:
+        schedule.every().monday.at(time).do(job)
+        schedule.every().tuesday.at(time).do(job)
+        schedule.every().wednesday.at(time).do(job)
+        schedule.every().thursday.at(time).do(job)
+        schedule.every().friday.at(time).do(job)
     while 1:
         schedule.run_pending()
         time.sleep(1)
