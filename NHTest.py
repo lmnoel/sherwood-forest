@@ -85,12 +85,12 @@ def job():
 
 if __name__ == '__main__':
     TIMES = ["09:28","15:58"]
-    for time in TIMES:
-        schedule.every().monday.at(time).do(job)
-        schedule.every().tuesday.at(time).do(job)
-        schedule.every().wednesday.at(time).do(job)
-        schedule.every().thursday.at(time).do(job)
-        schedule.every().friday.at(time).do(job)
+    for time_ in TIMES:
+        schedule.every().monday.at(time_).do(job)
+        schedule.every().tuesday.at(time_).do(job)
+        schedule.every().wednesday.at(time_).do(job)
+        schedule.every().thursday.at(time_).do(job)
+        schedule.every().friday.at(time_).do(job)
     while 1:
         schedule.run_pending()
         time.sleep(1)
