@@ -54,7 +54,7 @@ def security_data(ticker):
 def get_quote(ticker):
 
     r = requests.get('https://api.robinhood.com/quotes/{}/'.format(ticker))
-
+    return r.json()
     try:
         return float(r.json()['ask_price'])
     except:
