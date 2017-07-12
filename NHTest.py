@@ -63,9 +63,11 @@ def job():
         ratings.append(process_headlines())
     try:
         GLD_price = get_quote("GLD")['previous_close']
-        IVV_price = get_quote("IVV")['previous_close']
     except:
         GLD_price = -1
+    try:    
+        IVV_price = get_quote("IVV")['previous_close']
+    except:
         IVV_price = -1
     if gmt_minutes() < 900:
         morning_test = True
