@@ -141,7 +141,20 @@ def job():
 
 
 if __name__ == '__main__':
-    schedule.every(1).minutes.do(job)
+    for hour in range(9,17):
+        for minute in range(0,60):
+            sum_mins = hour * 60 + minute
+            if sum_mins >= 568 and sum_mins <= 962:
+                if hour == 9:
+                    hour_str = '0{}:'.format(hour)
+                else:
+                    hour_str = '{}:'.format(hour)
+                if minute < 10:
+                    min_str = '0{}'.format(minute)
+                else:
+                    min_str = '{}'.format(minute)
+                time_str = hour_str + min_str
+                schedule.every().day.at(time_str).do(job)
     while True:
         schedule.run_pending()
         time.sleep(1)
