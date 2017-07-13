@@ -109,7 +109,7 @@ SP100 = [
 
 def update_data(path, ticker):
     try:
-        price = get_quote(ticker)
+        price = get_quote(ticker)['ask_price']
     except:
         price = 'FAILED'
     filename = path + '/' + ticker + '.csv'
