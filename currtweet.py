@@ -13,9 +13,7 @@
 
 # Import the necessary methods from "twitter" library
 from twitter import Twitter, OAuth, TwitterHTTPError, TwitterStream
-import csv
-import json
-import time
+import csv, json, time, re
 from time import strftime
 import os.path
 
@@ -34,7 +32,7 @@ def read_api_keys():
     CONSUMER_SECRET = s[3]
 
 # Save each tweet in the stream to file 
-def run_stream(keywords,filter_by_followers=None):
+def run_stream(keywords,filter_by_followers=None,filter_target=False):
     try:
         read_api_keys()
         oauth = OAuth(ACCESS_TOKEN, ACCESS_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
@@ -59,18 +57,22 @@ def run_stream(keywords,filter_by_followers=None):
             os.makedirs('tweet_data')
         fields = [tweet['created_at'],tweet['user']['id'],
             tweet['user']['followers_count'], tweet['text']]
-        if filter_by_followers:
-            if filter_by_followers > fields[2]:
+
+        if filter_target:
+            re_match = re.search('Target|TARGET|target', tweet['text'])
+        else:
+            re_match = True
+
+        if filter_by_followers and re_match:
+            if filter_by_followers <= fields[2]:
                 with open(filename, 'a') as f:
                     writer = csv.writer(f)
                     writer.writerow(fields)
-                print(fields)
-        else:
+        elif re_match:
             with open(filename, 'a') as f:
                 writer = csv.writer(f)
                 writer.writerow(fields)
-            print(fields)
 
 if __name__ == '__main__':
-    run_stream('GBRUSD, USDGBR',50)
+    run_stream('EURUSD, USDEUR',50, True)
     
