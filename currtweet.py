@@ -308,11 +308,11 @@ def run_stream(keywords=['EURUSD'],filter_by_followers=None):
     with open(filename, 'a') as f:
         writer = csv.writer(f)
         writer.writerow(['date_time', 'user_id','num_followers','tweet_text'])
-    fields = [tweet['created_at'],tweet['user']['id'],
-            tweet['user']['followers_count'], tweet['text']]
     logger.info("Writing tweets to: {}".format(filename))
     for tweet in iterator:
         while not (int(time.strftime("%H")) == 23 and int(time.strftime("%M")) >= 58):
+            fields = [tweet['created_at'],tweet['user']['id'],
+            tweet['user']['followers_count'], tweet['text']]
             if filter_by_followers:
                 if filter_by_followers <= fields[2]:
                     with open(filename, 'a') as f:
