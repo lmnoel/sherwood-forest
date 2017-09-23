@@ -1,8 +1,10 @@
 # sherwood-forest
 =============
 
-auth.py--Functions for interacting with, authenticating and trading with the robinhood API.
+* RobinhoodWrapper: Interact with, authenticatE and trade with the robinhood API.
 
-paper_trading.py--Framework to test algorithms without using real funds.
+* email_alerts: Send yourself notifications from a valid gmail account.
 
-resolution_test.py--Functions to determine the update rate of stock data.
+* news_api.py: Wrapper for the news api-get news headlines.
+
+* wh_scraper.py: Stream/scrape, download and parse the 'executive orders' page of wh.gov.
