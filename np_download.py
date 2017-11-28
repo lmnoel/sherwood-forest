@@ -1,10 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-import re
-import os
-import logging
-import time
-import random
+import re, os, logging, time, random
+import threading
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -55,32 +52,33 @@ def nyt_scrape_year(year):
                 urls_to_scrape.append(url_plaintext)
 
     for url in urls_to_scrape:
-        res = requests.get(url)
-        total_downloaded += 1
-        try:
-            soup = BeautifulSoup(res.text, 'html.parser')
-            #return soup
-            paragraphs = soup.find_all('p',{'class':'story-body-text story-content'})
-            paragraphs = [i.text for i in paragraphs]
-            datetime = soup.find_all('meta',property='article:modified')[0]['content']
-
-            article = '\n-----\n' + datetime +'\n-----\n' + '\n'.join(paragraphs)
-            date = re.findall('(\d\d\d\d)-(\d\d)-(\d\d).+',datetime)
-            date = date[0]
-            filename = low_level_directory + '/nyt_{}_{}_{}.txt'.format(year, date[1], date[2])
-            if os.path.exists(filename):
-                file_mode = 'a'
-            else:
-                file_mode = 'w'
-            writefile = open(filename, file_mode)
-            writefile.write(article)
-            writefile.close()
-        except:
-            logger.info('page not found: {}'.format(url))
-            count_not_found += 1
-
-    logger.info('Downloaded {} of {} ({}%)'.format(count_not_found, total_downloaded, count_not_found / total_downloaded))
+        t = threading.Thread(target=download_page, args = (low_level_directory,url))
+        t.daemon = True
+        t.start()
+  
     return
+
+def download_page(low_level_directory, url):
+    res = requests.get(url)
+    try:
+        soup = BeautifulSoup(res.text, 'html.parser')
+        paragraphs = soup.find_all('p',{'class':'story-body-text story-content'})
+        paragraphs = [i.text for i in paragraphs]
+        datetime = soup.find_all('meta',property='article:modified')[0]['content']
+
+        article = '\n-----\n' + datetime +'\n-----\n' + '\n'.join(paragraphs)
+        date = re.findall('(\d\d\d\d)-(\d\d)-(\d\d).+',datetime)
+        date = date[0]
+        filename = low_level_directory + '/nyt_{}_{}_{}.txt'.format(date[0], date[1], date[2])
+        if os.path.exists(filename):
+            file_mode = 'a'
+        else:
+            file_mode = 'w'
+        writefile = open(filename, file_mode)
+        writefile.write(article)
+        writefile.close()
+    except:
+        logger.info('page not found: {}'.format(url,))
 
 def nyt_scrape_all():
     for year in range(1996, 2018):
