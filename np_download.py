@@ -17,10 +17,7 @@ def nyt_scrape_year(year):
     top_level_directory = 'newspaper_data/'
     if not os.path.exists(top_level_directory):
         os.mkdir(top_level_directory)
-    mid_level_directory =  top_level_directory + 'nyt/'
-    if not os.path.exists(mid_level_directory):
-        os.mkdir(mid_level_directory)
-    low_level_directory = mid_level_directory + str(year)
+    low_level_directory = top_level_directory + str(year)
     if not os.path.exists(low_level_directory):
         os.mkdir(low_level_directory)
     
@@ -49,7 +46,9 @@ def nyt_scrape_year(year):
             #print(url.get('href'))
             url_plaintext = url.get('href')
             if re.search('http://www.nytimes.com/[0-9]{4}/[0-9]{2}/[0-9]{2}/.+',url_plaintext):
-                urls_to_scrape.append(url_plaintext)
+                if 'business' in url_plaintext or 'world' in url_plaintext:
+                    urls_to_scrape.append(url_plaintext)
+
 
     for url in urls_to_scrape:
         t = threading.Thread(target=download_page, args = (low_level_directory,url))
@@ -69,7 +68,11 @@ def download_page(low_level_directory, url):
         article = '\n-----\n' + datetime +'\n-----\n' + '\n'.join(paragraphs)
         date = re.findall('(\d\d\d\d)-(\d\d)-(\d\d).+',datetime)
         date = date[0]
-        filename = low_level_directory + '/nyt_{}_{}_{}.txt'.format(date[0], date[1], date[2])
+        filepath = low_level_directory + '/{}_{}/'.format(date[1], date[2])
+        if not os.path.exists(filepath):
+            os.mkdir(filepath)
+        filename = filepath + 'nyt.txt'
+        
         if os.path.exists(filename):
             file_mode = 'a'
         else:
