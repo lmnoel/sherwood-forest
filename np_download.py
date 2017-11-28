@@ -71,7 +71,10 @@ def download_page(low_level_directory, url):
         filepath = low_level_directory + '/{}_{}/'.format(date[1], date[2])
         if not os.path.exists(filepath):
             os.mkdir(filepath)
-        filename = filepath + 'nyt.txt'
+        if 'business' in url:
+            filename = filepath + 'nyt_business.txt'
+        else:
+            filename = filepath + 'nyt_world.txt'
         
         if os.path.exists(filename):
             file_mode = 'a'
