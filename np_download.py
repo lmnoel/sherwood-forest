@@ -58,7 +58,12 @@ def nyt_scrape_year(year):
     return
 
 def download_page(low_level_directory, url):
-    res = requests.get(url)
+    while 1:
+        try:
+            res = requests.get(url)
+            break
+        except:
+            time.sleep(10)
     try:
         soup = BeautifulSoup(res.text, 'html.parser')
         paragraphs = soup.find_all('p',{'class':'story-body-text story-content'})
