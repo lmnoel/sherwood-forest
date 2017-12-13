@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re, os, logging, time, random
 import threading
+import queue
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -9,8 +10,12 @@ logger = logging.getLogger(__name__)
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 
+threads_out = 0
+MAX_THREADS = 100
+
 
 def nyt_scrape_year(year):
+    global threads_out
     count_not_found = 0
     total_downloaded = 0
     logger.info('Downloading year: {}'.format(year))
@@ -36,7 +41,7 @@ def nyt_scrape_year(year):
             year_pages.append('http://spiderbites.nytimes.com' + url.get('href'))
 
     #return year_pages
-    urls_to_scrape = []
+    urls_to_scrape = queue.Queue()
     for year_page in year_pages:
 
         local_urls = requests.get(year_page)
@@ -47,17 +52,21 @@ def nyt_scrape_year(year):
             url_plaintext = url.get('href')
             if re.search('http://www.nytimes.com/[0-9]{4}/[0-9]{2}/[0-9]{2}/.+',url_plaintext):
                 if 'business' in url_plaintext or 'world' in url_plaintext:
-                    urls_to_scrape.append(url_plaintext)
+                    urls_to_scrape.put(url_plaintext)
 
 
-    for url in urls_to_scrape:
-        t = threading.Thread(target=download_page, args = (low_level_directory,url))
-        t.daemon = True
-        t.start()
+    while not urls_to_scrape.empty():
+        if threads_out < MAX_THREADS:
+            threads_out += 1
+            url = urls_to_scrape.get()
+            t = threading.Thread(target=download_page, args = (low_level_directory,url))
+            t.daemon = True
+            t.start()
   
     return
 
 def download_page(low_level_directory, url):
+    global threads_out
     while 1:
         try:
             res = requests.get(url)
@@ -90,6 +99,7 @@ def download_page(low_level_directory, url):
         writefile.close()
     except:
         logger.info('page not found: {}'.format(url,))
+    threads_out -= 1
 
 def nyt_scrape_all():
     for year in range(1996, 2018):
