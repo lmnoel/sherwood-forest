@@ -138,6 +138,6 @@ def test(learn_proportion=0.6):
             correct_days += 1
         total_matches += day_vec.matches
     print('avg word hits per day: ',total_matches/total_days)
-    print('correctly predicted direction on {} percent of days'.format(correct_days / total_days))
+    print('correctly predicted direction on {} percent of days'.format(100 * (correct_days / total_days)))
     return correct_days / total_days
 
