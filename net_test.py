@@ -25,13 +25,13 @@ def test2(filename):
     ACTUAL_RATIO = 2
     for data in df.itertuples():
         total_data += 1
-        if data[PREDICTED_RATIO] > 1:
-            if data[ACTUAL_RATIO] > 1:
+        if data[PREDICTED_RATIO] >= 0.5:
+            if data[ACTUAL_RATIO] == 1:
                 true_positive += 1
             else:
                 false_positive += 1
-        elif data[PREDICTED_RATIO] < 1:
-            if data[ACTUAL_RATIO] < 1:
+        elif data[PREDICTED_RATIO] <= 0.5:
+            if data[ACTUAL_RATIO] == 0:
                 true_negative += 1
             else:
                 false_negative += 1
@@ -42,6 +42,9 @@ def test2(filename):
     print('True Negative Rate:', true_negative / total_data)
     print('False Positive Rate:', false_positive / total_data)
     print('False Negative Rate:',false_negative / total_data)
+    print()
+    print('Total accurate rate:',(true_negative + true_positive)/total_data)
+    print('Total false rate:',(false_negative + false_positive)/total_data)
 
 
 if __name__ == '__main__':
