@@ -3,6 +3,8 @@ import statsmodels.api as sm
 import sys
 
 
+#usage, from command line: python3 net_test.py filename
+
 def test1(filename):
     print('TEST 1:')
     df = pd.read_csv(filename)
